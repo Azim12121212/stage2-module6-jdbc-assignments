@@ -41,7 +41,7 @@ public class CustomDataSource implements DataSource {
                         String name = properties.getProperty("postgres.name");
                         String password = properties.getProperty("postgres.password");
                         instance = new CustomDataSource(driver, url, password, name);
-                        Class.forName(properties.getProperty("postgres.driver"));
+                        Class.forName(driver);
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -58,10 +58,9 @@ public class CustomDataSource implements DataSource {
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        return new CustomConnector().getConnection(url, name, password);
+        return new CustomConnector().getConnection(url, username, password);
     }
 
-    @Override
     public PrintWriter getLogWriter() throws SQLException {
         throw new UnsupportedOperationException("'getLogWriter' is not implemented");
     }
