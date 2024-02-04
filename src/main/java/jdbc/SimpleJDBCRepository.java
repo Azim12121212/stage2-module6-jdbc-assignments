@@ -27,14 +27,14 @@ public class SimpleJDBCRepository {
     private static final String findUserByNameSQL = "select * from myusers where firstname=?";
     private static final String findAllUserSQL = "select * from myusers";
 
-    public Long createUser(String firstName, String lastName, int age) {
+    public Long createUser() {
         Long userId = null;
 
         try {
             ps = connection.prepareStatement(createUserSQL, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, firstName);
-            ps.setString(2, lastName);
-            ps.setInt(3, age);
+            ps.setString(1, "John");
+            ps.setString(2, "Connor");
+            ps.setInt(3, 25);
             ps.executeUpdate();
             ResultSet rsGenKeys = ps.getGeneratedKeys();
             if (rsGenKeys.next()) {
@@ -107,16 +107,16 @@ public class SimpleJDBCRepository {
         return usersList;
     }
 
-    public User updateUser(String firstName, String lastName, int age, Long id) {
-        User user = findUserById(id);
+    public User updateUser() {
+        User user = findUserById(2L);
 
         try {
             if (user!=null) {
                 ps = connection.prepareStatement(updateUserSQL);
-                ps.setString(1, firstName);
-                ps.setString(2, lastName);
-                ps.setInt(3, age);
-                ps.setLong(4, id);
+                ps.setString(1, "Steve");
+                ps.setString(2, "Jobs");
+                ps.setInt(3, 50);
+                ps.setLong(4, 2L);
                 int rowAffected = ps.executeUpdate();
                 if (rowAffected>0) {
                     ps.close();
