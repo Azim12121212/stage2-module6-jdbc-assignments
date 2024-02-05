@@ -27,21 +27,20 @@ public class SimpleJDBCRepository {
     private static final String findUserByNameSQL = "select * from myusers where firstname=?";
     private static final String findAllUserSQL = "select * from myusers";
 
-    public Long createUser() {
+    public Long createUser(User user) {
         Long userId = null;
-
         try {
             connection = CustomDataSource.getInstance().getConnection();
             if (connection != null) {
                 System.out.println("Connection established!");
                 ps = connection.prepareStatement(createUserSQL, Statement.RETURN_GENERATED_KEYS);
-                ps.setString(1, "Sarah");
-                ps.setString(2, "Connor");
-                ps.setInt(3, 60);
+                ps.setString(1, user.getFirstName());
+                ps.setString(2, user.getLastName());
+                ps.setInt(3, user.getAge());
                 ps.executeUpdate();
-                ResultSet rsGenKeys = ps.getGeneratedKeys();
-                if (rsGenKeys.next()) {
-                    userId = rsGenKeys.getLong(1);
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    userId = rs.getLong(1);
                 }
                 ps.close();
                 connection.close();
@@ -127,25 +126,21 @@ public class SimpleJDBCRepository {
         return usersList;
     }
 
-    public User updateUser() {
-        User user = findUserById(9L);
-
+    public User updateUser(User user) {
         try {
-            if (user!=null) {
-                connection = CustomDataSource.getInstance().getConnection();
-                if (connection != null) {
-                    System.out.println("Connection established!");
-                    ps = connection.prepareStatement(updateUserSQL);
-                    ps.setString(1, "Steve");
-                    ps.setString(2, "Jobs");
-                    ps.setInt(3, 50);
-                    ps.setLong(4, 9L);
-                    int rowAffected = ps.executeUpdate();
-                    if (rowAffected>0) {
-                        ps.close();
-                        connection.close();
-                        return user;
-                    }
+            connection = CustomDataSource.getInstance().getConnection();
+            if (connection != null) {
+                System.out.println("Connection established!");
+                ps = connection.prepareStatement(updateUserSQL);
+                ps.setString(1, user.getFirstName());
+                ps.setString(2, user.getLastName());
+                ps.setInt(3, user.getAge());
+                ps.setLong(4, user.getId());
+                int rowAffected = ps.executeUpdate();
+                if (rowAffected>0) {
+                    ps.close();
+                    connection.close();
+                    return user;
                 }
             }
         } catch (SQLException e) {
@@ -154,7 +149,7 @@ public class SimpleJDBCRepository {
         return null;
     }
 
-    private void deleteUser(Long userId) {
+    public void deleteUser(Long userId) {
         try {
             User user = findUserById(userId);
             if (user!=null) {
@@ -182,7 +177,8 @@ public class SimpleJDBCRepository {
     public static void main(String[] args) {
         SimpleJDBCRepository repository = new SimpleJDBCRepository();
 
-        //System.out.println("createUser() method output: " + repository.createUser());
+        //User user = new User(2L, "Sarah", "Connor", 55);
+        //System.out.println("createUser() method output: " + repository.createUser(user));
 
         //User user = repository.findUserById(8L);
         //System.out.println("findUserById() method output: " + user.getId() + " " + user.getFirstName() + " " + user.getLastName() + " " + user.getAge());
@@ -198,9 +194,9 @@ public class SimpleJDBCRepository {
 //            }
 //        }
 
-//        User user = repository.updateUser();
+//        User user = new User(11L, "Josh", "Turner", 45);
 //        System.out.println("updateUser() method output:");
-//        if (user!=null) {
+//        if (repository.updateUser(user)!=null) {
 //            System.out.println("User: " + user.getId() + " " + user.getFirstName() + " " + user.getLastName() + " " + user.getAge());
 //            System.out.println("has been updated!");
 //        } else {
